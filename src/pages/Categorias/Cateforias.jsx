@@ -4,26 +4,16 @@ import {
   // Card, Box,
   Button,
   Tooltip,
+  IconButton,
 } from "@mui/material";
 import { DataGrid, esES } from "@mui/x-data-grid";
+import DeleteRoundedIcon from "@mui/icons-material/DeleteRounded";
 import InsertDriveFileRoundedIcon from "@mui/icons-material/InsertDriveFileRounded";
 import ModalCategoria from "../../componetns/MoodalCategoria";
+import { useCategory } from "../../hooks/useCategory";
 
 function Categorias() {
-  const [listaCategorias, setListaCategorias] = useState([]);
-//   const [tipoModal, setTipoModal] = useState("nuevo");
-  const [openModal, setOpenModal] = useState(false);
-  const toggleShow = () => setOpenModal((p) => !p);
-  //   const [datosCategorias, setDatosCategorias] = useState({
-
-  //   })
-  const obtenerDatosGrid = () => {
-    setListaCategorias([]);
-  };
-  useEffect(() => {
-    obtenerDatosGrid();
-  }, []);
-
+  const { getCategories, deleteCategory } = useCategory();
   const columns = [
     {
       field: "id",
@@ -39,6 +29,17 @@ function Categorias() {
       width: 200,
       editable: false,
       align: "center",
+      renderCell: (params) => (
+        <img
+          src={params.value}
+          alt={params.row.title || "imagen"}
+          style={{ width: "auto", height: 50, borderRadius: "4px" }}
+          onError={(e) => {
+            e.target.onerror = null;
+            e.target.src = "path_to_default_image";
+          }} // en caso de que la imagen no se encuentre
+        />
+      ),
     },
     {
       field: "nombre",
@@ -52,36 +53,88 @@ function Categorias() {
         </Tooltip>
       ),
     },
-    // {
-    //   field: "delete",
-    //   headerName: "Eliminar",
-    //   width: 100,
-    //   align: "center",
-    //   headerClassName: "super-app-theme--header",
-    //   renderCell: (param) => (
-    //     <IconButton
-    //       color="primary"
-    //       onClick={() => {
-    //         eliminarProductoTabla(param);
-    //       }}
-    //       component="span"
-    //       size="small"
-    //     >
-    //       <DeleteRoundedIcon style={{ color: "#FF3030" }} />
-    //     </IconButton>
-    //   ),
-    // },
+    {
+      field: "delete",
+      headerName: "Eliminar",
+      width: 100,
+      align: "center",
+      headerClassName: "super-app-theme--header",
+      renderCell: (param) => (
+        <IconButton
+          color="primary"
+          onClick={() => {
+            eliminarProductoTabla(param);
+          }}
+          component="span"
+          size="small"
+        >
+          <DeleteRoundedIcon style={{ color: "#FF3030" }} />
+        </IconButton>
+      ),
+    },
   ];
+  const [listaCategorias, setListaCategorias] = useState([]);
+  const [tipoModal, setTipoModal] = useState("");
+  const [openModal, setOpenModal] = useState(false);
+  const [datosEditar, setDatosEditar] = useState({});
+  const toggleShow = () => setOpenModal((p) => !p);
+  //   const [datosCategorias, setDatosCategorias] = useState({
+
+  //   })
+  const eliminarProductoTabla = async (e) => {
+    try {
+      await deleteCategory(e.id);
+      const nuevaLista = listaCategorias.filter((f) => f.id !== e.id);
+      setListaCategorias(nuevaLista);
+    } catch (error) {
+      console.log(error);
+    }
+
+    // console.log(e);
+  };
+  const obtenerDatosGrid = async () => {
+    try {
+      const categorias = await getCategories();
+      const listado = categorias.map((f) => ({
+        ...f,
+        nombre: f.title,
+      }));
+
+      //    console.log(listado);
+      setListaCategorias(listado);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    obtenerDatosGrid();
+  }, []);
+
   const Nuevo = () => {
+    setTipoModal("Nuevo");
     setOpenModal(true);
   };
-  console.log("Si estoy renderisando");
+  const Editar = () => {
+    setTipoModal("Editar");
+    setOpenModal(true);
+  };
+  const abrirModal = (datos, tipo) => {
+    if (tipo === "Nuevo") {
+      setDatosEditar({});
+      Nuevo();
+    } else {
+      setDatosEditar(datos);
+      Editar();
+    }
+  };
+
   return (
     <>
       <ModalCategoria
         openModal={openModal}
         toggleShow={toggleShow}
-        tipo="nuevo"
+        tipo={tipoModal}
+        datosEditar={datosEditar}
       />
       <Grid container>
         <Grid container item justifyContent="flex-end">
@@ -89,7 +142,7 @@ function Categorias() {
             <Button
               fullWidth
               variant="text"
-              onClick={() => Nuevo()}
+              onClick={() => abrirModal("Nuevo")}
               startIcon={<InsertDriveFileRoundedIcon />}
             >
               {" "}
@@ -109,12 +162,7 @@ function Categorias() {
               density="compact"
               // disableSelectionOnClick
               // disableExtendRowFullWidth
-              rowHeight={20}
-              // onCellEditCommit={(e) => {
-              //   console.log(e);
-              //   editarColumnaGrid(e);
-              // }}
-              // checkboxSelection
+              rowHeight={80}
               sx={{
                 "& .MuiDataGrid-cell": {
                   border: "none",
@@ -131,10 +179,7 @@ function Categorias() {
               }}
               rows={listaCategorias}
               columns={columns}
-              // columns={columns.map((column) => ({
-              //   ...column,
-              //   renderCell: renderCellWithTooltip,
-              // }))}
+              onRowDoubleClick={(e) => abrirModal(e.row, "Editar")}
               disableColumnMenu
               hideFooter
               getRowId={(rows) => rows.id}

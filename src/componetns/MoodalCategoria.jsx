@@ -12,29 +12,17 @@ import Box from "@mui/material/Box";
 import PropTypes from "prop-types";
 import { useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
+import { useCategory } from "../hooks/useCategory";
+import { useEffect } from "react";
+import { useSnackbar } from "notistack";
 
-// import * as ServiciosAjusteIngresoXlote from '../servicios/ajuste_ingreso_x_lote_services';
-// import DisableTextField from '../../../../../../components/admenterprice/DisabledTextField';
-// import { formatearFecha } from '../../../../../../utils/admenterprice/funciones/funciones';
-
-// const stylemodal = {
-//   borderRadius: "1rem",
-//   position: "absolute",
-//   top: "50%",
-//   left: "50%",
-//   transform: "translate(-50%, -50%)",
-//   width: { xs: "90%", sm: "90%", md: "90%", lg: "45%" },
-//   height: "auto",
-//   bgcolor: "background.paper",
-//   boxShadow: 24,
-// };
 const stylemodal = {
   borderRadius: "1rem",
   position: "absolute",
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: { xs: "90%", sm: "90%", md: "60%", lg: "40%" }, // Ajusta el ancho para dispositivos más grandes
+  width: { xs: "90%", sm: "90%", md: "60%", lg: "40%" },
   bgcolor: "background.paper",
   boxShadow: 24,
   p: 4, // Añade padding alrededor del contenido del modal
@@ -43,13 +31,15 @@ ModalCategoria.propTypes = {
   openModal: PropTypes.bool.isRequired,
   tipo: PropTypes.string.isRequired,
   toggleShow: PropTypes.func.isRequired,
+  datosEditar: PropTypes.object,
   // proveedor: PropTypes.number.isRequired,
   // resetearLista: PropTypes.bool.isRequired,
 };
 
 export default function ModalCategoria(props) {
-  // eslint-disable-next-line react/prop-types
-  const { openModal, toggleShow } = props;
+  const { enqueueSnackbar } = useSnackbar();
+  const { openModal, toggleShow, tipo, datosEditar } = props;
+  const { addCategory, updateCategory } = useCategory();
   const [datosCategoria, setDatosCategoria] = useState({
     nombre: "",
     archivo: null,
@@ -61,12 +51,7 @@ export default function ModalCategoria(props) {
       nombre: e.target.value,
     });
   };
-  // const cambiarArchivo = (e) => {
-  //   setDatosCategoria({
-  //     ...datosCategoria,
-  //     archivo: e.target.value,
-  //   });
-  // };
+
   const [preview, setPreview] = useState(""); // Estado para la vista previa de la imagen
 
   // Función para manejar el cambio en el input de archivo
@@ -77,20 +62,55 @@ export default function ModalCategoria(props) {
       setPreview(URL.createObjectURL(file)); // Crea una URL para la vista previa de la imagen
     }
   };
-  // console.log("mira esto de aca",codigoalternativo)
-  // const DesactivarBusqueda = producto > 0 && bodega > 0;
+  const grabarDatos = async (tipos) => {
+    setPreview("");
+    const datos = {
+      title: datosCategoria.nombre,
+      image: datosCategoria.archivo,
+    };
+    console.log(datosEditar);
+    if (tipos === "Nuevo") {
+      await addCategory(datos);
+      toggleShow();
+      enqueueSnackbar("success", "La Categoria se Guardo con Exito");
+    } else {
+      await updateCategory(datosEditar.id, datos);
+      enqueueSnackbar("success", "La Categoria se Actualizo con Exito");
+      toggleShow();
+    }
+  };
+  useEffect(() => {
+    setPreview("");
 
-  //  const [rowsFilter, setRowFilter] = useState({});
+    if (tipo === "Editar") {
+      setDatosCategoria({
+        nombre: datosEditar.title,
+        archivo: datosEditar.image,
+      });
+      fetchAndPreviewImage(datosEditar.image);
+    } else {
+      setDatosCategoria({
+        nombre: "",
+        archivo: null,
+      });
+    }
 
-  //   const [datosProducto, setDatosProducto] = useState({
-  //     codigo: 0,
-  //     codigoproducto: "",
-  //     nombre: "",
-  //   });
+    // if (datosEditar !== null && datosEditar.length === 0) {
+    //   console.log('Quedo aqui');
+    //   fetchAndPreviewImage(datosEditar.image);
+    //   // setPreview(URL.createObjectURL(datosEditar.image));
+    // }
+  }, [datosEditar]);
 
-  //   const onTrigger = (event) => {
-  //     props.parentCallback(event);
-  //   };
+  const fetchAndPreviewImage = (imageUrl) => {
+    fetch(imageUrl)
+      .then((response) => response.blob())
+      .then((blob) => {
+        const objectURL = URL.createObjectURL(blob);
+        setPreview(objectURL);
+      })
+      .catch((error) => console.error("Error al cargar la imagen:", error));
+  };
 
   return (
     <Modal
@@ -156,48 +176,20 @@ export default function ModalCategoria(props) {
                   </Box>
                 </Grid>
               )}
+              <Grid item xs={12}>
+                <Button
+                  variant="contained"
+                  component="label"
+                  fullWidth
+                  onClick={() => grabarDatos("grabar")}
+                >
+                  Grabar
+                </Button>
+              </Grid>
             </Grid>
           </Box>
         </Box>
       </Fade>
-      {/* <Fade in={openModal}>
-        <Box sx={stylemodal}>
-          <div style={{ margin: "1rem", fontWeight: "bold" }}>
-             <h2>Selección de {props.nombre} </h2> 
-          </div>
-          <Box ml={2} mr={2}>
-            <Grid container spacing={1} alignItems="center">
-              <Grid item xl={3} lg={3} md={3} sm={3} xs={12}>
-                <TextField
-                  size="small"
-                  fullWidth
-                  label="Nombre"
-                  variant="outlined"
-                  value={datosCategoria.nombre}
-                  onChange={(e) => {
-                    cambiarNombre(e);
-                  }}
-                />
-              </Grid>
-              <Grid item xl={9} lg={9} md={6} sm={9} xs={12}>
-                <TextField
-                  fullWidth
-                  size="small"
-                  type="text"
-                  autoFocus
-                  label="Imagen"
-                  name="buscar"
-                  variant="outlined"
-                  onChange={(e) => {
-                    cambiarArchivo(e);
-                  }}
-                  value={datosCategoria.archivo}
-                />
-              </Grid>
-            </Grid>
-          </Box>
-        </Box>
-      </Fade> */}
     </Modal>
   );
 }

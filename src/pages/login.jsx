@@ -8,29 +8,48 @@ import {
   Grid,
   Alert,
 } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import KeyRoundedIcon from "@mui/icons-material/KeyRounded";
 import Image from "../componetns/Image";
 import imagenLogo from "../assets/LOGORES.png";
 import { LoadingButton } from "@mui/lab";
 import { useRef, useState } from "react";
 import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
+import { loginApi } from "../services/loginservices";
+// import { useAuth } from "../hooks/useAuth";
+import { setToken } from "../function/tocken";
 
 function Login() {
   const userRef = useRef();
-
+  // const { login } = useAuth();
+  const navegacion = useNavigate();
   const [user, setUser] = useState({
-    codigoUsuario: "",
+    email: "",
     password: "",
   });
-  const cambiarUsuario = (e) => {
+  const cambiarEmail = (e) => {
     setUser({
-      codigoUsuario: e.target.value,
+      ...user,
+      email: e.target.value,
     });
   };
   const cambiarPassword = (e) => {
     setUser({
+      ...user,
       password: e.target.value,
     });
+  };
+  const ingresarLogin = async () => {
+    try {
+      const response = await loginApi(user);
+      const { access } = response;
+      setToken(access);
+      //  await login(access)
+      navegacion("/general/categorias");
+      // console.log(access);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -54,11 +73,11 @@ function Login() {
             <TextField
               required
               inputRef={userRef}
-              label="Usuario"
+              label="Email"
               fullWidth
-              value={user.codigoUsuario}
+              value={user.email}
               onChange={(e) => {
-                cambiarUsuario(e);
+                cambiarEmail(e);
               }}
               InputProps={{
                 startAdornment: (
@@ -94,6 +113,7 @@ function Login() {
               fullWidth
               size="large"
               variant="contained"
+              onClick={ingresarLogin}
               // Manejador de eventos y otros props
             >
               Acceder
