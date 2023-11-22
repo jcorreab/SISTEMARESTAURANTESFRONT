@@ -72,7 +72,9 @@ export default function ModalCategoria(props) {
     if (tipos === "Nuevo") {
       await addCategory(datos);
       toggleShow();
-      enqueueSnackbar("success", "La Categoria se Guardo con Exito");
+      enqueueSnackbar("La Categoria se Guardo con Exito", {
+        variant: "success",
+      });
     } else {
       await updateCategory(datosEditar.id, datos);
       enqueueSnackbar("success", "La Categoria se Actualizo con Exito");
@@ -80,6 +82,7 @@ export default function ModalCategoria(props) {
     }
   };
   useEffect(() => {
+    console.log(tipo);
     setPreview("");
 
     if (tipo === "Editar") {
@@ -128,7 +131,7 @@ export default function ModalCategoria(props) {
             alignItems="center"
           >
             <Typography id="modal-modal-title" variant="h6" component="h2">
-              Añadir Categoría
+              {`${tipo === "Nuevo" ? "Añadir" : "Editar"} Categoría`}
             </Typography>
             <IconButton onClick={toggleShow}>
               <CloseIcon />

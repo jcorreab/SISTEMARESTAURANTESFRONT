@@ -22,6 +22,7 @@ export async function addCategoryApi(data, token) {
     body: formData,
   };
 
+  console.log(url,params);
   const response = await fetch(url, params);
   const result = await response.json();
   return result;

@@ -35,15 +35,21 @@ export function useCategory() {
     try {
       setLoading(true);
       await addCategoryApi(data, token);
-      enqueueSnackbar("success", "La Categoria se Guardo con Exito");
+      enqueueSnackbar("La Categoria se Guardo con Exito", {
+        variant: "success",
+      });
+      // enqueueSnackbar("success", "La Categoria se Guardo con Exito");
       setLoading(false);
     } catch (error) {
       console.log(error);
       setLoading(false);
-      enqueueSnackbar(
-        "error",
-        "Ocurrio un error al realizar la transaccion reintente"
-      );
+      enqueueSnackbar("Ocurrio un error al realizar la transaccion reintente", {
+        variant: "error",
+      });
+      // enqueueSnackbar(
+      //   "error",
+      //   "Ocurrio un error al realizar la transaccion reintente"
+      // );
       setError(error);
     }
   };
@@ -52,14 +58,16 @@ export function useCategory() {
     try {
       setLoading(true);
       await updateCategoryApi(id, data, token);
-      enqueueSnackbar("success", "La Categoria se Actualizo con Exito");
+      enqueueSnackbar("La Categoria se Actualizo con Exito", {
+        variant: "success",
+      });
       setLoading(false);
     } catch (error) {
       setLoading(false);
-      enqueueSnackbar(
-        "error",
-        "Ocurrio un error al realizar la transaccion reintente"
-      );
+      enqueueSnackbar("Ocurrio un error al realizar la transaccion reintente", {
+        variant: "error",
+      });
+
       setError(error);
     }
   };

@@ -119,6 +119,7 @@ function Categorias() {
     setOpenModal(true);
   };
   const abrirModal = (datos, tipo) => {
+    console.log(tipo);
     if (tipo === "Nuevo") {
       setDatosEditar({});
       Nuevo();
@@ -142,7 +143,10 @@ function Categorias() {
             <Button
               fullWidth
               variant="text"
-              onClick={() => abrirModal("Nuevo")}
+              onClick={() => {
+                setTipoModal("Nuevo");
+                abrirModal({}, "Nuevo");
+              }}
               startIcon={<InsertDriveFileRoundedIcon />}
             >
               {" "}
@@ -179,7 +183,10 @@ function Categorias() {
               }}
               rows={listaCategorias}
               columns={columns}
-              onRowDoubleClick={(e) => abrirModal(e.row, "Editar")}
+              onRowDoubleClick={(e) => {
+                setTipoModal("Editar");
+                abrirModal(e.row, "Editar");
+              }}
               disableColumnMenu
               hideFooter
               getRowId={(rows) => rows.id}

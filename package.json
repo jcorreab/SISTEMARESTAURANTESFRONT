@@ -20,6 +20,8 @@
     "notistack": "^3.0.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "framer-motion": "^8.4.0",
+    "@iconify/react": "^4.0.0",
     "react-lazy-load-image-component": "^1.6.0",
     "react-router": "^6.16.0",
     "react-router-dom": "^6.16.0"

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, createContext } from "react";
-import { setToken, getToken, removeToken } from "../function/tocken"
+import { setToken, getToken, removeToken } from "../function/tocken";
 import { useUser } from "../hooks/useUser";
+import { useSnackbar } from "notistack";
 
 export const AuthContext = createContext({
   auth: undefined,
@@ -13,6 +14,7 @@ export function AuthProvider(props) {
   const { children } = props;
   const [auth, setAuth] = useState(undefined);
   const { getMe } = useUser();
+  const { enqueueSnackbar } = useSnackbar();
 
   useEffect(() => {
     (async () => {
@@ -31,8 +33,14 @@ export function AuthProvider(props) {
       console.log(token);
       setToken(token);
       const me = await getMe(token);
+      enqueueSnackbar("Bienvenido a GASTOGESTOR", {
+        variant: "success",
+      });
       setAuth({ token, me });
     } catch (error) {
+      enqueueSnackbar("Usuario y Contraseña incorrecta", {
+        variant: "erroe",
+      });
       console.log(error);
     }
     // console.log(token);

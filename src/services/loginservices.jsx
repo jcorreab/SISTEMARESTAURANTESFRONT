@@ -1,23 +1,27 @@
 import { URLAPIGENERAL } from "../config/config";
 
 export async function loginApi(formValue) {
-  const url = `${URLAPIGENERAL}/api/auth/login/`;
-  const params = {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(formValue),
-  };
+  try {
+    const url = `${URLAPIGENERAL}/api/auth/login/`;
+    const params = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formValue),
+    };
 
-  const response = await fetch(url, params);
+    const response = await fetch(url, params);
 
-  if (response.status !== 200) {
-    throw new Error("Usuario o contraseña incorrectos");
+    if (response.status !== 200) {
+      throw new Error("Usuario o contraseña incorrectos");
+    }
+
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    console.log(error);
   }
-
-  const result = await response.json();
-  return result;
 }
 
 export async function getMeApi(token) {
