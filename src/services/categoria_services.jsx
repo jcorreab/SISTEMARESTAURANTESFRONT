@@ -1,4 +1,5 @@
 import { URLAPIGENERAL } from "../config/config";
+// import useMensaje from "../hooks/useMensaje";
 
 export async function getCategoriesApi() {
   const url = `${URLAPIGENERAL}/api/categories/`;
@@ -9,54 +10,89 @@ export async function getCategoriesApi() {
 
 export async function addCategoryApi(data, token) {
   console.log(data);
-  const formData = new FormData();
-  formData.append("image", data.image);
-  formData.append("title", data.title);
+  // eslint-disable-next-line no-useless-catch
+  try {
+    const formData = new FormData();
+    formData.append("image", data.image);
+    formData.append("title", data.title);
 
-  const url = `${URLAPIGENERAL}/api/categories/`;
-  const params = {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    body: formData,
-  };
+    const url = `${URLAPIGENERAL}/api/categories/`;
+    const params = {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    };
 
-  console.log(url,params);
-  const response = await fetch(url, params);
-  const result = await response.json();
-  return result;
+    console.log(url, params);
+    const response = await fetch(url, params);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    throw error;
+  }
 }
 
 export async function updateCategoryApi(id, data, token) {
-  const formData = new FormData();
-  formData.append("title", data.title);
-  if (data.image) formData.append("image", data.image);
+  // const { mensajeSistema } = useMensaje();
+  // eslint-disable-next-line no-useless-catch
+  try {
+    const formData = new FormData();
+    formData.append("title", data.title);
+    if (data.image) formData.append("image", data.image);
 
-  const url = `${URLAPIGENERAL}/api/categories/${id}/`;
-  const params = {
-    method: "PATCH",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    body: formData,
-  };
+    const url = `${URLAPIGENERAL}/api/categories/${id}/`;
+    const params = {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    };
 
-  const response = await fetch(url, params);
-  const result = await response.json();
-  return result;
+    const response = await fetch(url, params);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const result = await response.json();
+    console.log(response);
+    return result;
+  } catch (error) {
+    // console.log(error);
+    throw error;
+  }
 }
 
 export async function deleteCategoryApi(id, token) {
-  const url = `${URLAPIGENERAL}/api/categories/${id}/`;
-  const params = {
-    method: "DELETE",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  };
+  // eslint-disable-next-line no-useless-catch
+  try {
+    const url = `${URLAPIGENERAL}/api/categories/${id}/`;
+    const params = {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
 
-  const response = await fetch(url, params);
-  const result = await response.json();
-  return result;
+    const response = await fetch(url, params);
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    //  throw error;
+  }
+  // const url = `${URLAPIGENERAL}/api/categories/${id}/`;
+  // const params = {
+  //   method: "DELETE",
+  //   headers: {
+  //     Authorization: `Bearer ${token}`,
+  //   },
+  // };
+
+  // const response = await fetch(url, params);
+  // const result = await response.json();
+  // return result;
 }

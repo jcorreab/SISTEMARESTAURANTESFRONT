@@ -16,12 +16,15 @@ import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
+import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 // import InboxIcon from "@mui/icons-material/MoveToInbox";
 // import MailIcon from "@mui/icons-material/Mail";
 // import { Outlet } from "react-router";
 import { useNavigate } from "react-router-dom";
 import { RESTAURANTES_ROUTES } from "../routes/routes";
 import { Outlet } from "react-router-dom";
+import { Button } from "@mui/material";
+import { removeToken } from "../function/tocken";
 
 // import InventoryIcon from "@mui/icons-material/Inventory";
 // import CategoryIcon from '@mui/icons-material/Category';
@@ -109,16 +112,46 @@ export default function Navegacion() {
   const handleNavigate = (path) => {
     navigate(path);
   };
-  //   const Opciones = [
-  //     { codigo: "CAT", nombre: "Categorias", icono: <InventoryIcon />, ruta: "" },
-  //     { codigo: "PRO", nombre: "Productos", icono: <CategoryIcon/>, ruta: "" },
-  //     { codigo: "MES", nombre: "Mesas, ruta:''", icono: <TableRestaurantIcon/>, ruta: "" },
-  //   ];
+  const handleLogout = () => {
+    // Aquí va tu lógica para cerrar sesión
+    // Por ejemplo, limpiar tokens, actualizar estado de usuario, etc.
+    navigate("/"); // Redirige al usuario a la página de inicio de sesión
+    removeToken();
+  };
 
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
       <AppBar position="fixed" open={open}>
+        <Toolbar>
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            onClick={handleDrawerOpen}
+            edge="start"
+            sx={{
+              marginRight: "36px",
+              ...(open && { display: "none" }),
+            }}
+          >
+            <MenuIcon />
+          </IconButton>
+          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
+            GASTROGESTOR
+          </Typography>
+          {/* Se utiliza flexGrow para empujar todo lo que esté después hacia la derecha */}
+
+          <Button
+            color="primary"
+            variant="contained"
+            onClick={handleLogout}
+            startIcon={<ExitToAppIcon />}
+          >
+            Cerrar Sesión
+          </Button>
+        </Toolbar>
+      </AppBar>
+      {/* <AppBar position="fixed" open={open}>
         <Toolbar>
           <IconButton
             color="inherit"
@@ -135,8 +168,11 @@ export default function Navegacion() {
           <Typography variant="h6" noWrap component="div">
             GASTROGESTOR
           </Typography>
+          <Button color="inherit" onClick={handleLogout}>
+            Cerrar Sesión
+          </Button>
         </Toolbar>
-      </AppBar>
+      </AppBar> */}
       <Drawer variant="permanent" open={open}>
         <DrawerHeader>
           <IconButton onClick={handleDrawerClose}>

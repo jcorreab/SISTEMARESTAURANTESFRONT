@@ -7,13 +7,15 @@ import {
 } from "../services/categoria_services";
 // import { useAuth } from "./useAuth";
 import { getToken } from "../function/tocken";
-import { useSnackbar } from "notistack";
+
+import useMensaje from "../hooks/useMensaje";
 
 export function useCategory() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [categories, setCategories] = useState(null);
-  const { enqueueSnackbar } = useSnackbar();
+
+  const { mensajeSistema } = useMensaje();
 
   // const { auth } = useAuth();
   const token = getToken();
@@ -35,16 +37,18 @@ export function useCategory() {
     try {
       setLoading(true);
       await addCategoryApi(data, token);
-      enqueueSnackbar("La Categoria se Guardo con Exito", {
-        variant: "success",
+      mensajeSistema({
+        texto: "La Categoria se grabo Con Exito",
+        variante: "success",
       });
       // enqueueSnackbar("success", "La Categoria se Guardo con Exito");
       setLoading(false);
     } catch (error) {
       console.log(error);
       setLoading(false);
-      enqueueSnackbar("Ocurrio un error al realizar la transaccion reintente", {
-        variant: "error",
+      mensajeSistema({
+        texto: "Problemas al Actualizar la Categoria Contacte a Soporte...",
+        variante: "error",
       });
       // enqueueSnackbar(
       //   "error",
@@ -58,14 +62,16 @@ export function useCategory() {
     try {
       setLoading(true);
       await updateCategoryApi(id, data, token);
-      enqueueSnackbar("La Categoria se Actualizo con Exito", {
-        variant: "success",
+      mensajeSistema({
+        texto: "La Categoria se Actualizo con Exito",
+        variante: "success",
       });
       setLoading(false);
     } catch (error) {
       setLoading(false);
-      enqueueSnackbar("Ocurrio un error al realizar la transaccion reintente", {
-        variant: "error",
+      mensajeSistema({
+        texto: "Problemas al Actualizar la Categoria Contacte a Soporte...",
+        variante: "error",
       });
 
       setError(error);
@@ -76,15 +82,18 @@ export function useCategory() {
     try {
       setLoading(true);
       await deleteCategoryApi(id, token);
-      enqueueSnackbar("success", "La Categoria se Elimino con Exito");
+      mensajeSistema({
+        texto: "La Categoria se Elimino Con Exito",
+        variante: "success",
+      });
 
       setLoading(false);
     } catch (error) {
       setLoading(false);
-      enqueueSnackbar(
-        "error",
-        "Ocurrio un error al realizar la transaccion reintente"
-      );
+      mensajeSistema({
+        texto: "Problemas al Eliminar la Categoria Contacte a Soporte...",
+        variante: "error",
+      });
 
       setError(error);
     }

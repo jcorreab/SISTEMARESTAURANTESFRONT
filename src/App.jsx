@@ -1,7 +1,7 @@
 // import { Route, Routes } from "react-router-dom";
 // // import "./App.css";
 // import Login from "./pages/login";
-// import NotistackProvider from "./componetns/NotistackProvider";
+import NotistackProvider from "./componetns/NotistackProvider";
 import Router from "./routes/enrutados";
 // import Categorias from "./pages/Categorias/Cateforias";
 
@@ -10,9 +10,9 @@ import Router from "./routes/enrutados";
 function App() {
   return (
    
-      // <NotistackProvider>
+      <NotistackProvider>
         <Router />
-      // </NotistackProvider>
+      </NotistackProvider>
     
   );
 }

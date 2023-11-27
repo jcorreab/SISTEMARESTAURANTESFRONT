@@ -9,25 +9,40 @@ import {
 import { DataGrid, esES } from "@mui/x-data-grid";
 import DeleteRoundedIcon from "@mui/icons-material/DeleteRounded";
 import InsertDriveFileRoundedIcon from "@mui/icons-material/InsertDriveFileRounded";
-import ModalCategoria from "../../componetns/MoodalCategoria";
-import { useCategory } from "../../hooks/useCategory";
+// import ModalCategoria from "../../componetns/MoodalCategoria";
+import { useProduct } from "../../hooks/useProduct";
+import ModalProducto from "../../componetns/ModalProductos";
+
 // import useMensaje from "../../hooks/useMensaje";
 
-function Categorias() {
-  const { getCategories, deleteCategory } = useCategory();
+function Productos() {
+  const { getProducts } = useProduct();
+  const styleActive = {
+    color: "#00AB55",
+    borderRadius: "1rem",
+    border: "solid 0px #00AB55",
+    backgroundColor: "#cbf5d8",
+  };
+
+  const styleInactive = {
+    color: "#bd2323",
+    borderRadius: "1rem",
+    border: "0px solid #bd2323",
+    backgroundColor: "#e7b9b9",
+  };
   const columns = [
-    {
-      field: "id",
-      headerName: "linea",
-      width: 55,
-      align: "center",
-      hide: true,
-    },
+    // {
+    //   field: "id",
+    //   headerName: "linea",
+    //   width: 55,
+    //   align: "center",
+    //   hide: true,
+    // },
 
     {
       field: "image",
       headerName: "Imagen",
-      width: 200,
+      width: 250,
       editable: false,
       align: "center",
       renderCell: (params) => (
@@ -43,9 +58,9 @@ function Categorias() {
       ),
     },
     {
-      field: "nombre",
-      headerName: "Nombre",
-      width: 400,
+      field: "title",
+      headerName: "Producto",
+      width: 240,
       editable: false,
       align: "center",
       renderCell: (params) => (
@@ -55,16 +70,58 @@ function Categorias() {
       ),
     },
     {
+      field: "price",
+      headerName: "Precio",
+      width: 150,
+      editable: false,
+      align: "center",
+      renderCell: (params) => (
+        <Tooltip title={params.value} placementF="top">
+          <div>{params.value}</div>
+        </Tooltip>
+      ),
+    },
+    {
+      field: "categoria",
+      headerName: "Categoria",
+      width: 240,
+      editable: false,
+      align: "center",
+      renderCell: (params) => (
+        <Tooltip title={params.value} placementF="top">
+          <div>{params.value}</div>
+        </Tooltip>
+      ),
+    },
+
+    {
+      field: "active",
+      headerName: "Activo",
+      width: 120,
+      editable: false,
+      align: "center",
+      renderCell: (param) =>
+        param.row.active === true ? (
+          <Button variant="containded" style={styleActive}>
+            Activo
+          </Button>
+        ) : (
+          <Button variant="containded" style={styleInactive}>
+            Inactivo
+          </Button>
+        ),
+    },
+    {
       field: "delete",
       headerName: "Eliminar",
       width: 100,
       align: "center",
       headerClassName: "super-app-theme--header",
-      renderCell: (param) => (
+      renderCell: () => (
         <IconButton
           color="primary"
           onClick={() => {
-            eliminarProductoTabla(param);
+            //      eliminarProductoTabla(param);
           }}
           component="span"
           size="small"
@@ -74,7 +131,8 @@ function Categorias() {
       ),
     },
   ];
-  const [listaCategorias, setListaCategorias] = useState([]);
+
+  const [listaProductos, setListaProductos] = useState([]);
   const [tipoModal, setTipoModal] = useState("");
   const [openModal, setOpenModal] = useState(false);
   const [datosEditar, setDatosEditar] = useState({});
@@ -83,27 +141,34 @@ function Categorias() {
   //   const [datosCategorias, setDatosCategorias] = useState({
 
   //   })
-  const eliminarProductoTabla = async (e) => {
-    try {
-      await deleteCategory(e.id);
-      const nuevaLista = listaCategorias.filter((f) => f.id !== e.id);
-      setListaCategorias(nuevaLista);
-    } catch (error) {
-   //   console.log(error);
-    }
+  // const eliminarProductoTabla = async (e) => {
+  //   try {
+  //     await deleteCategory(e.id);
+  //     const nuevaLista = listaCategorias.filter((f) => f.id !== e.id);
+  //     setListaCategorias(nuevaLista);
+  //   } catch (error) {
+  //     //   console.log(error);
+  //   }
 
-    // console.log(e);
-  };
+  //   // console.log(e);
+  // };
   const obtenerDatosGrid = async () => {
     try {
-      const categorias = await getCategories();
-      const listado = categorias.map((f) => ({
+      const productos = await getProducts();
+      const MapeadosProductos = productos.map((f) => ({
         ...f,
-        nombre: f.title,
+        categoria: f.category_data.title,
+        activo: f.active,
       }));
+      setListaProductos(MapeadosProductos);
+      console.log(MapeadosProductos);
+      // const listado = categorias.map((f) => ({
+      //   ...f,
+      //   nombre: f.title,
+      // }));
 
       //    console.log(listado);
-      setListaCategorias(listado);
+      //     setListaCategorias(listado);
     } catch (error) {
       console.log(error);
     }
@@ -133,7 +198,7 @@ function Categorias() {
 
   return (
     <>
-      <ModalCategoria
+      <ModalProducto
         openModal={openModal}
         toggleShow={toggleShow}
         tipo={tipoModal}
@@ -159,8 +224,8 @@ function Categorias() {
         <Grid container item>
           <div
             style={{
-              paddingTop: "1rem",
-              height: "45vh",
+              paddingTop: "2rem",
+              height: "65vh",
               width: "100%",
             }}
           >
@@ -183,7 +248,7 @@ function Categorias() {
                   backgroundColor: "grid.amarillo",
                 },
               }}
-              rows={listaCategorias}
+              rows={listaProductos}
               columns={columns}
               onRowDoubleClick={(e) => {
                 setTipoModal("Editar");
@@ -203,4 +268,4 @@ function Categorias() {
   );
 }
 
-export default Categorias;
+export default Productos;

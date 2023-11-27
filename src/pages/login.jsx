@@ -18,10 +18,13 @@ import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
 import { loginApi } from "../services/loginservices";
 // import { useAuth } from "../hooks/useAuth";
 import { setToken } from "../function/tocken";
+import useMensaje from "../hooks/useMensaje";
 
 function Login() {
   const userRef = useRef();
   // const { login } = useAuth();
+  const { mensajeSistema } = useMensaje();
+
   const navegacion = useNavigate();
   const [user, setUser] = useState({
     email: "",
@@ -48,7 +51,10 @@ function Login() {
       navegacion("/general/categorias");
       // console.log(access);
     } catch (error) {
-      console.log(error);
+      mensajeSistema({
+        texto: "Usuario y Contraseña Incorrecta",
+        variante: "error",
+      });
     }
   };
 

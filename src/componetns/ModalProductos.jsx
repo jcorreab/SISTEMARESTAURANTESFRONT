@@ -7,14 +7,20 @@ import {
   Typography,
   IconButton,
   Button,
+  MenuItem,
+  Checkbox,
+  FormControlLabel,
 } from "@mui/material";
 import Box from "@mui/material/Box";
 import PropTypes from "prop-types";
 import { useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import { useCategory } from "../hooks/useCategory";
+
 import { useEffect } from "react";
 import useMensaje from "../hooks/useMensaje";
+import { NumericFormat } from "react-number-format";
+import { useProduct } from "../hooks/useProduct";
 
 const stylemodal = {
   borderRadius: "1rem",
@@ -27,7 +33,7 @@ const stylemodal = {
   boxShadow: 24,
   p: 4, // Añade padding alrededor del contenido del modal
 };
-ModalCategoria.propTypes = {
+ModalProducto.propTypes = {
   openModal: PropTypes.bool.isRequired,
   tipo: PropTypes.string.isRequired,
   toggleShow: PropTypes.func.isRequired,
@@ -36,19 +42,30 @@ ModalCategoria.propTypes = {
   // resetearLista: PropTypes.bool.isRequired,
 };
 
-export default function ModalCategoria(props) {
+export default function ModalProducto(props) {
   const { openModal, toggleShow, tipo, datosEditar } = props;
-  const { addCategory, updateCategory } = useCategory();
+  const { getCategories } = useCategory();
+  const { addProduct, updateProduct } = useProduct();
   const { mensajeSistema } = useMensaje();
-  const [datosCategoria, setDatosCategoria] = useState({
+  const [listaCategorias, setListaCategorias] = useState([]);
+  const [datosProducto, setDatosProducto] = useState({
     nombre: "",
     archivo: null,
+    categoria: 1,
+    precio: 0.0,
+    activo: false,
   });
 
   const cambiarNombre = (e) => {
-    setDatosCategoria({
-      ...datosCategoria,
+    setDatosProducto({
+      ...datosProducto,
       nombre: e.target.value,
+    });
+  };
+  const CambiarValorPrecio = (e) => {
+    setDatosProducto({
+      ...datosProducto,
+      precio: e.floatValue,
     });
   };
 
@@ -58,36 +75,59 @@ export default function ModalCategoria(props) {
   const cambiarArchivo = (event) => {
     const file = event.target.files[0];
     if (file) {
-      setDatosCategoria((prev) => ({ ...prev, archivo: file }));
+      setDatosProducto((prev) => ({ ...prev, archivo: file }));
       setPreview(URL.createObjectURL(file)); // Crea una URL para la vista previa de la imagen
     }
   };
+  const cambiarCategoria = (e) => {
+    setDatosProducto({
+      ...datosProducto,
+      categoria: e.target.value,
+    });
+  };
+  const CambiarActico = (e) => {
+    setDatosProducto({
+      ...datosProducto,
+      activo: e.target.checked,
+    });
+  };
   const grabarDatos = async () => {
     setPreview("");
-    if (datosCategoria.nombre.trim().length == 0) {
+    if (datosProducto.nombre.trim().length == 0) {
       mensajeSistema({
         texto: "Ingrese Por Favor el Nombre de la Categoria",
         variante: "warning",
       });
       return false;
     }
-    if (datosCategoria.archivo === null) {
+    if (datosProducto.archivo === null) {
       mensajeSistema({
         texto: "Porfavor suba la imagen de la Categoria",
         variante: "warning",
       });
       return false;
     }
-
+    // {
+    //   "title": "string",
+    //   "price": "string",
+    //   "active": true,
+    //   "category": 0,
+    //   "category_data": {
+    //     "title": "string"
+    //   }
+    // }
     const datos = {
-      title: datosCategoria.nombre,
-      image: datosCategoria.archivo,
+      title: datosProducto.nombre,
+      image: datosProducto.archivo,
+      price: datosProducto.precio.toFixed(2),
+      category: datosProducto.categoria,
+      active: datosProducto.activo
     };
 
     // console.log(datosEditar);
     if (tipo === "Nuevo") {
       try {
-        await addCategory(datos);
+        await addProduct(datos);
         toggleShow();
         // mensajeSistema({
         //   texto: "La Categoria se grabo Con Exito",
@@ -101,7 +141,7 @@ export default function ModalCategoria(props) {
       }
     } else {
       try {
-        await updateCategory(datosEditar.id, datos);
+        await updateProduct(datosEditar.id, datos);
         // mensajeSistema({
         //   texto: "La Categoria se Actualizo con Exito",
         //   variante: "success",
@@ -116,18 +156,37 @@ export default function ModalCategoria(props) {
       }
     }
   };
+
+  const ObtenerCategorias = async () => {
+    const categorias = await getCategories();
+    setListaCategorias(categorias);
+  };
   useEffect(() => {
-    console.log(tipo);
+    ObtenerCategorias();
+  }, []);
+
+  const fetchAndPreviewImage = (imageUrl) => {
+    fetch(imageUrl)
+      .then((response) => response.blob())
+      .then((blob) => {
+        const objectURL = URL.createObjectURL(blob);
+        setPreview(objectURL);
+      })
+      .catch((error) => console.error("Error al cargar la imagen:", error));
+  };
+  useEffect(() => {
     setPreview("");
 
     if (tipo === "Editar") {
-      setDatosCategoria({
+      setDatosProducto({
+        ...datosProducto,
         nombre: datosEditar.title,
         archivo: datosEditar.image,
+        categoria: datosEditar.category,
       });
       fetchAndPreviewImage(datosEditar.image);
     } else {
-      setDatosCategoria({
+      setDatosProducto({
         nombre: "",
         archivo: null,
       });
@@ -139,17 +198,6 @@ export default function ModalCategoria(props) {
     //   // setPreview(URL.createObjectURL(datosEditar.image));
     // }
   }, [datosEditar]);
-
-  const fetchAndPreviewImage = (imageUrl) => {
-    fetch(imageUrl)
-      .then((response) => response.blob())
-      .then((blob) => {
-        const objectURL = URL.createObjectURL(blob);
-        setPreview(objectURL);
-      })
-      .catch((error) => console.error("Error al cargar la imagen:", error));
-  };
-
   return (
     <Modal
       open={openModal}
@@ -178,10 +226,58 @@ export default function ModalCategoria(props) {
                 <TextField
                   size="small"
                   fullWidth
-                  label="Nombre de la Categoría"
+                  label="Nombre del Producto"
                   variant="outlined"
-                  value={datosCategoria.nombre}
+                  value={datosProducto.nombre}
                   onChange={cambiarNombre}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  select
+                  label="Categoria"
+                  fullWidth
+                  size="small"
+                  onChange={(e) => {
+                    cambiarCategoria(e);
+                  }}
+                  value={datosProducto.categoria}
+                >
+                  {listaCategorias.map((m) => (
+                    <MenuItem key={m.id} value={m.id}>
+                      {m.title}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Grid>
+              <Grid item xs={8}>
+                <NumericFormat
+                  label="Precio"
+                  name="Precio"
+                  customInput={TextField}
+                  value={datosProducto.precio}
+                  size="small"
+                  type="text"
+                  prefix="$"
+                  thousandSeparator
+                  onValueChange={(f) => {
+                    CambiarValorPrecio(f);
+                  }}
+                />
+              </Grid>
+              <Grid item xs={4}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={datosProducto.activo || false}
+                      //  defaultChecked={true}
+                      onChange={(e) => {
+                        CambiarActico(e);
+                      }}
+                      value={datosProducto.activo}
+                    />
+                  }
+                  label="Activo"
                 />
               </Grid>
               <Grid item xs={12}>
